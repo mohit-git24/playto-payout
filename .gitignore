@@ -27,3 +27,8 @@ Thumbs.db
 
 # Celery / Redis
 celerybeat-schedule
+
+# Node / Frontend
+node_modules/
+dist/
+.env
