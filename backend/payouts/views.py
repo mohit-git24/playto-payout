@@ -6,8 +6,8 @@ from django.utils import timezone
 from datetime import timedelta
 import uuid
 
-from .models import Merchant, Payout, LedgerEntry
-from .serializers import PayoutSerializer, MerchantSerializer, LedgerEntrySerializer
+from .models import Merchant, Payout, LedgerEntry, BankAccount
+from .serializers import PayoutSerializer, MerchantSerializer, LedgerEntrySerializer, BankAccountSerializer
 from .tasks import process_payout
 
 
