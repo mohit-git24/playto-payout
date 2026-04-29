@@ -1,3 +1,41 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg-base: #080c14;
+  --bg-surface: #0d1420;
+  --bg-elevated: #121b2e;
+  --bg-hover: #1a2540;
+  --border: #1e2d47;
+  --border-bright: #2a3f60;
+  --text-primary: #e8edf5;
+  --text-secondary: #7a8fa8;
+  --text-muted: #3d5068;
+  --gold: #f0a500;
+  --gold-dim: #1a0f00;
+  --cyan: #00d4ff;
+  --cyan-dim: #001d26;
+  --green: #00e676;
+  --green-dim: #001a0d;
+  --red: #ff3d57;
+  --red-dim: #1a0008;
+  --amber: #ffab00;
+  --amber-dim: #1a1000;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Syne', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+select option { background: var(--bg-elevated); color: var(--text-primary); }

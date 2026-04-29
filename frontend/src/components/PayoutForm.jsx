@@ -8,7 +8,9 @@ export default function PayoutForm({ merchant, bankAccounts, availablePaise, onS
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState(null)
 
-  const fmt = (p) => `₹${(p / 100).toLocaleString('en-IN')}`
+  const fmt = p => `₹${(p / 100).toLocaleString('en-IN')}`
+  const numericAmount = amount ? parseFloat(amount) : 0
+  const pct = Number.isFinite(numericAmount) && availablePaise > 0 ? Math.min((numericAmount * 100) / availablePaise * 100, 100) : 0
 
   const handleSubmit = async () => {
     const amountPaise = Math.round(parseFloat(amount) * 100)
@@ -17,23 +19,23 @@ export default function PayoutForm({ merchant, bankAccounts, availablePaise, onS
       return
     }
     if (amountPaise > availablePaise) {
-      setMessage({ type: 'error', text: `Max available: ${fmt(availablePaise)}` })
+      setMessage({ type: 'error', text: `Max: ${fmt(availablePaise)}` })
+      return
+    }
+    if (!bankId) {
+      setMessage({ type: 'error', text: 'Select a bank account' })
       return
     }
 
     setLoading(true)
     setMessage(null)
-
-    const idempotencyKey = uuidv4()
     const { ok, body } = await createPayout(
       { merchant_id: merchant.id, amount_paise: amountPaise, bank_account_id: bankId },
-      idempotencyKey
+      uuidv4()
     )
-
     setLoading(false)
-
     if (ok) {
-      setMessage({ type: 'success', text: `Payout of ${fmt(amountPaise)} queued` })
+      setMessage({ type: 'success', text: `Payout of ${fmt(amountPaise)} queued successfully` })
       setAmount('')
       onSuccess()
     } else {
@@ -42,55 +44,126 @@ export default function PayoutForm({ merchant, bankAccounts, availablePaise, onS
   }
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6">
-      <h2 className="text-zinc-400 text-xs uppercase tracking-widest mb-4">Request Payout</h2>
-
-      <div className="space-y-4">
-        <div>
-          <label className="text-zinc-500 text-xs mb-1 block">Amount (₹)</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={e => setAmount(e.target.value)}
-            placeholder="0.00"
-            className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-zinc-100 font-mono focus:outline-none focus:border-emerald-500"
-          />
-          <div className="text-zinc-600 text-xs mt-1">Available: {fmt(availablePaise)}</div>
-        </div>
-
-        <div>
-          <label className="text-zinc-500 text-xs mb-1 block">Bank Account</label>
-          <select
-            value={bankId}
-            onChange={e => setBankId(e.target.value)}
-            className="w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-zinc-100 focus:outline-none focus:border-emerald-500"
-          >
-            {bankAccounts.map(b => (
-              <option key={b.id} value={b.id}>
-                {b.account_holder_name} — {b.account_number}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {message && (
-          <div className={`text-sm px-3 py-2 rounded ${
-            message.type === 'success'
-              ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-              : 'bg-red-950 text-red-400 border border-red-800'
-          }`}>
-            {message.text}
-          </div>
-        )}
-
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold py-2 rounded transition-colors"
-        >
-          {loading ? 'Submitting...' : 'Request Payout'}
-        </button>
+    <div
+      style={{
+        background: 'var(--bg-surface)',
+        border: '1px solid var(--border)',
+        borderRadius: '12px',
+        padding: '1.5rem'
+      }}
+    >
+      <div style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em', marginBottom: '1.25rem' }}>
+        REQUEST PAYOUT
       </div>
+
+      <div style={{ marginBottom: '1rem' }}>
+        <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>AMOUNT (₹)</label>
+        <input
+          type="number"
+          value={amount}
+          onChange={e => setAmount(e.target.value)}
+          placeholder="0.00"
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-bright)',
+            borderRadius: '8px',
+            color: 'var(--text-primary)',
+            fontFamily: "'JetBrains Mono'",
+            fontSize: '18px',
+            outline: 'none',
+            transition: 'border-color 0.15s'
+          }}
+          onFocus={e => (e.target.style.borderColor = 'var(--cyan)')}
+          onBlur={e => (e.target.style.borderColor = 'var(--border-bright)')}
+        />
+        {/* Progress bar showing % of available balance */}
+        <div style={{ marginTop: '8px' }}>
+          <div style={{ height: '3px', background: 'var(--bg-elevated)', borderRadius: '2px', overflow: 'hidden' }}>
+            <div
+              style={{
+                height: '100%',
+                width: `${pct}%`,
+                background: pct > 90 ? 'var(--red)' : pct > 60 ? 'var(--amber)' : 'var(--cyan)',
+                transition: 'width 0.2s ease, background 0.2s ease',
+                borderRadius: '2px'
+              }}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{pct.toFixed(1)}% of available</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono'" }}>MAX {fmt(availablePaise)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: '1.25rem' }}>
+        <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>BANK ACCOUNT</label>
+        <select
+          value={bankId}
+          onChange={e => setBankId(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-bright)',
+            borderRadius: '8px',
+            color: 'var(--text-primary)',
+            fontFamily: "'Syne', sans-serif",
+            fontSize: '13px',
+            outline: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          {bankAccounts.length === 0 && <option>No accounts found</option>}
+          {bankAccounts.map(b => (
+            <option key={b.id} value={b.id} style={{ background: 'var(--bg-elevated)' }}>
+              {b.account_holder_name} · {b.account_number} · {b.ifsc_code}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {message && (
+        <div
+          style={{
+            padding: '10px 12px',
+            borderRadius: '8px',
+            marginBottom: '1rem',
+            fontSize: '12px',
+            background: message.type === 'success' ? 'var(--green-dim)' : 'var(--red-dim)',
+            border: `1px solid ${message.type === 'success' ? 'var(--green)' : 'var(--red)'}`,
+            color: message.type === 'success' ? 'var(--green)' : 'var(--red)',
+            fontFamily: "'JetBrains Mono'"
+          }}
+        >
+          {message.type === 'success' ? '✓ ' : '✗ '}
+          {message.text}
+        </div>
+      )}
+
+      <button
+        onClick={handleSubmit}
+        disabled={loading || !bankId}
+        style={{
+          width: '100%',
+          padding: '12px',
+          background: loading ? 'var(--bg-elevated)' : 'linear-gradient(135deg, var(--cyan-dim), #001a2e)',
+          border: `1px solid ${loading ? 'var(--border)' : 'var(--cyan)'}`,
+          borderRadius: '8px',
+          color: loading ? 'var(--text-muted)' : 'var(--cyan)',
+          fontFamily: "'Syne', sans-serif",
+          fontWeight: '700',
+          fontSize: '13px',
+          letterSpacing: '0.1em',
+          cursor: loading ? 'not-allowed' : 'pointer',
+          transition: 'all 0.15s ease',
+          textTransform: 'uppercase'
+        }}
+      >
+        {loading ? 'PROCESSING...' : 'INITIATE PAYOUT →'}
+      </button>
     </div>
   )
 }
