@@ -74,7 +74,7 @@ export default function App() {
               opacity: 0.9
             }}
           />
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.04em', fontWeight: 600 }}>LIVE</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.04em', fontWeight: 600 }}>Live</span>
         </div>
 
         {/* Merchant Tabs */}

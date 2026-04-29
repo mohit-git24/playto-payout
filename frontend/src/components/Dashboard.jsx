@@ -25,7 +25,7 @@ export default function Dashboard({ merchantId }) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>LOADING LEDGER...</div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.04em' }}>Loading ledger...</div>
         </div>
       </div>
     )
@@ -69,7 +69,7 @@ export default function Dashboard({ merchantId }) {
             }}
           />
           <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
-            TOTAL BALANCE
+            Total balance
           </div>
           <div style={{ fontSize: '26px', fontWeight: '600', fontFamily: "'JetBrains Mono'", color: 'var(--gold)' }}>
             {fmt(balance.balance_paise)}
@@ -102,7 +102,7 @@ export default function Dashboard({ merchantId }) {
             }}
           />
           <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
-            HELD · IN FLIGHT
+            Held · in flight
           </div>
           <div
             style={{
@@ -139,7 +139,7 @@ export default function Dashboard({ merchantId }) {
             }}
           />
           <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
-            AVAILABLE TO WITHDRAW
+            Available to withdraw
           </div>
           <div style={{ fontSize: '26px', fontWeight: '600', fontFamily: "'JetBrains Mono'", color: 'var(--green)' }}>
             {fmt(balance.available_paise)}
@@ -167,7 +167,7 @@ export default function Dashboard({ merchantId }) {
           }}
         >
           <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.12em', marginBottom: '1rem' }}>
-            RECENT CREDITS
+            Recent credits
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {ledger_entries

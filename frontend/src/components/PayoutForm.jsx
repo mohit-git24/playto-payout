@@ -73,10 +73,16 @@ export default function PayoutForm({ merchant, bankAccounts, availablePaise, onS
             fontFamily: "'JetBrains Mono'",
             fontSize: '18px',
             outline: 'none',
-            transition: 'border-color 0.15s'
+            transition: 'border-color 0.15s, box-shadow 0.15s'
           }}
-          onFocus={e => (e.target.style.borderColor = 'var(--cyan)')}
-          onBlur={e => (e.target.style.borderColor = 'var(--border-bright)')}
+          onFocus={e => {
+            e.target.style.borderColor = 'var(--cyan)'
+            e.target.style.boxShadow = '0 0 0 3px rgba(42, 170, 195, 0.18)'
+          }}
+          onBlur={e => {
+            e.target.style.borderColor = 'var(--border-bright)'
+            e.target.style.boxShadow = 'none'
+          }}
         />
         {/* Progress bar showing % of available balance */}
         <div style={{ marginTop: '8px' }}>
@@ -93,7 +99,7 @@ export default function PayoutForm({ merchant, bankAccounts, availablePaise, onS
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
             <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{pct.toFixed(1)}% of available</span>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono'" }}>MAX {fmt(availablePaise)}</span>
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono'" }}>Max {fmt(availablePaise)}</span>
           </div>
         </div>
       </div>
@@ -114,6 +120,14 @@ export default function PayoutForm({ merchant, bankAccounts, availablePaise, onS
             fontSize: '13px',
             outline: 'none',
             cursor: 'pointer'
+          }}
+          onFocus={e => {
+            e.target.style.borderColor = 'var(--cyan)'
+            e.target.style.boxShadow = '0 0 0 3px rgba(42, 170, 195, 0.18)'
+          }}
+          onBlur={e => {
+            e.target.style.borderColor = 'var(--border-bright)'
+            e.target.style.boxShadow = 'none'
           }}
         >
           {bankAccounts.length === 0 && <option>No accounts found</option>}

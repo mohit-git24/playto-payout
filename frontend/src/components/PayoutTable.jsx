@@ -92,7 +92,7 @@ export default function PayoutTable({ payouts }) {
                         opacity: p.status === 'processing' ? 1 : 0.85
                       }}
                     />
-                    {p.status}
+                    {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
                   </span>
                 </td>
                 <td style={{ padding: '12px 16px', fontFamily: "'JetBrains Mono'", fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>
