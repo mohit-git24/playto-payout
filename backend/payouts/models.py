@@ -103,11 +103,16 @@ class Payout(models.Model):
         ordering = ['-created_at']
 
     def transition_to(self, new_status):
-        """Enforce state machine. Raises ValueError on illegal transition."""
+        """
+        Enforces the state machine at the model level.
+        Every code path that changes payout status MUST go through here.
+        This means illegal transitions are impossible regardless of caller.
+        """
         allowed = self.VALID_TRANSITIONS.get(self.status, [])
         if new_status not in allowed:
             raise ValueError(
-                f"Illegal transition: {self.status} -> {new_status}"
+                f"Illegal state transition: {self.status} → {new_status}. "
+                f"Allowed from '{self.status}': {allowed or 'none (terminal state)'}"
             )
         self.status = new_status
 
