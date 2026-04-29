@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createPayout } from '../api'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -7,6 +7,12 @@ export default function PayoutForm({ merchant, bankAccounts, availablePaise, onS
   const [bankId, setBankId] = useState(bankAccounts[0]?.id || '')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState(null)
+
+  useEffect(() => {
+    if (bankAccounts.length > 0 && !bankId) {
+      setBankId(bankAccounts[0].id)
+    }
+  }, [bankAccounts])
 
   const fmt = p => `₹${(p / 100).toLocaleString('en-IN')}`
   const numericAmount = amount ? parseFloat(amount) : 0

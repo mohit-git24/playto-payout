@@ -152,7 +152,7 @@ export default function Dashboard({ merchantId }) {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
         <PayoutForm
           merchant={merchant}
-          bankAccounts={merchant.bank_accounts || []}
+          bankAccounts={data.merchant.bank_accounts || []}
           availablePaise={balance.available_paise}
           onSuccess={refresh}
         />
