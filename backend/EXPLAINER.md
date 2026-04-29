@@ -2,7 +2,8 @@
 
 ## 1. The Ledger
 
-**Balance calculation:**
+ok so basically every rupee movement is a row in `LedgerEntry` — either a credit (money came in) or a debit (payout went out). balance is never stored anywhere, its always calculated fresh:
+
 ```python
 result = self.ledger_entries.aggregate(
     total_credits=Sum('amount', filter=Q(entry_type='credit')),
@@ -11,15 +12,15 @@ result = self.ledger_entries.aggregate(
 balance = (result['total_credits'] or 0) - (result['total_debits'] or 0)
 ```
 
-Credits and debits are immutable append-only rows in `LedgerEntry`. Balance is never stored as a mutable field — it's always derived. This means there's no way to corrupt the balance; the source of truth is always the ledger.
+why this way? because if you store balance as a column, two requests hitting at the same time can both read ₹100, both subtract ₹60, both think they're fine, and now you've paid out ₹120 from ₹100. with a ledger you just count the rows — theres no way to corrupt it.
 
-A debit entry is only written when a payout reaches `completed`. A failed payout writes no debit — funds are automatically available again because `held = sum of pending/processing payouts` and a failed payout is excluded from that sum. No compensating transactions needed.
-
-All amounts are `BigIntegerField` in paise. No floats anywhere. `1000` means ₹10.00.
+also debit only gets written when payout actually completes. if it fails, no debit = money automatically comes back. no reversal code needed.
 
 ---
 
 ## 2. The Lock
+
+this is the part i actually spent time thinking about:
 
 ```python
 with transaction.atomic():
@@ -32,36 +33,50 @@ with transaction.atomic():
     payout = Payout.objects.create(...)
 ```
 
-`select_for_update()` issues `SELECT ... FOR UPDATE` in PostgreSQL. This acquires a row-level exclusive lock on the merchant row. The second concurrent request blocks at the database level — not Python — until the first transaction commits. Only then does it acquire the lock and re-read the balance, which now correctly reflects the first payout being held. This makes the check-then-deduct atomic.
+`select_for_update()` tells postgres — lock this row, nobody else touches it until i'm done. so if two requests come in at the same time, the second one literally waits at the database level until the first one finishes. then it reads the balance again and sees the first payout already took the funds.
 
-Python-level locks (threading.Lock, etc.) would fail under multiple processes/workers. Only database-level locking is correct here.
+the key thing — this is a **database** lock not a python lock. python locks break the moment you have multiple workers. postgres lock works across everything.
 
 ---
 
 ## 3. The Idempotency
 
-Three layers of protection:
+three layers because networks are weird and clients retry:
 
-**Layer 1 (fast path):** Before acquiring any lock, query for existing payout with this `(merchant, idempotency_key)`. If found and within 24h, return immediately — HTTP 200.
+**first check** — before doing anything, just query if this key exists:
+```python
+existing = Payout.objects.filter(
+    merchant=merchant, idempotency_key=idempotency_key
+).first()
+if existing:
+    return Response(PayoutSerializer(existing).data, status=200)
+```
 
-**Layer 2 (inside lock):** After acquiring `select_for_update`, check again. This handles the race where two identical requests both pass Layer 1 simultaneously. The second one now sees the first's payout and returns it.
+**second check** — inside the lock, check again. handles the case where two identical requests both passed the first check at the same time:
+```python
+existing_inside = Payout.objects.filter(
+    merchant=merchant_locked, idempotency_key=idempotency_key
+).first()
+if existing_inside:
+    return Response(PayoutSerializer(existing_inside).data, status=200)
+```
 
-**Layer 3 (database constraint):** `unique_together = [('merchant', 'idempotency_key')]` on the Payout model. If somehow both requests slip through Layer 1 and Layer 2, the database rejects the second INSERT with `IntegrityError`. We catch this and return the existing payout.
+**third layer** — database `unique_together` on `(merchant, idempotency_key)`. if somehow both slip through, the second INSERT just fails and we catch the IntegrityError and return the first one.
 
-Keys are scoped per merchant and expire after 24 hours (checked in application logic).
+keys are per merchant, expire after 24h. same key from different merchant = different payout, that's fine.
 
 ---
 
 ## 4. The State Machine
 
-Illegal transitions are blocked in `Payout.transition_to()`:
+blocked right here on the model:
 
 ```python
 VALID_TRANSITIONS = {
     'pending':    ['processing'],
     'processing': ['completed', 'failed'],
-    'completed':  [],  # terminal
-    'failed':     [],  # terminal
+    'completed':  [],
+    'failed':     [],
 }
 
 def transition_to(self, new_status):
@@ -71,24 +86,30 @@ def transition_to(self, new_status):
     self.status = new_status
 ```
 
-`completed` and `failed` map to empty lists. Any transition out of them raises `ValueError`. This check lives on the model — not in view logic — so every code path that touches payout status is protected regardless of how it's called.
+`failed` maps to empty list. trying to go `failed → completed` hits the ValueError immediately, nothing gets saved.
 
-Fund return on failure is atomic with the state transition because: no debit `LedgerEntry` is ever written for a failed payout. Since `available = credits - debits - held`, and a failed payout is excluded from `held`, the funds become available the moment the status becomes `failed` within the same transaction.
+put this on the model not in views so every single place that changes status is automatically protected. can't accidentally bypass it.
 
 ---
 
 ## 5. The AI Audit
 
-**What AI generated:**
+AI gave me this for balance calculation:
+
 ```python
-# Summing balance in Python — WRONG
+# what the AI wrote
 entries = LedgerEntry.objects.filter(merchant=merchant)
 balance = sum(e.amount if e.entry_type == 'credit' else -e.amount for e in entries)
 ```
 
-**Why it's wrong:** This fetches every ledger row into Python memory and iterates. For a merchant with 50,000 transactions this is a full table scan. Worse — it has a consistency window: rows can be inserted between the fetch and the sum, giving a stale balance. Under concurrent load this becomes a real bug.
+looks fine right? i almost missed it. the problem:
 
-**What I replaced it with:**
+- fetches every single ledger row into python memory. merchant with 50k transactions = 50k rows loaded for no reason
+- there's a gap between the fetch and the sum where new rows can sneak in — so the number you get is already wrong
+- completely breaks inside a transaction with `select_for_update` because the rows are read outside the lock scope
+
+what i actually used:
+
 ```python
 result = self.ledger_entries.aggregate(
     total_credits=Sum('amount', filter=Q(entry_type='credit')),
@@ -97,4 +118,4 @@ result = self.ledger_entries.aggregate(
 balance = (result['total_credits'] or 0) - (result['total_debits'] or 0)
 ```
 
-One SQL query, computed in the database, consistent within the transaction. O(1) network round trips regardless of ledger size.
+one query, done in the database, consistent, fast regardless of how many transactions exist.
