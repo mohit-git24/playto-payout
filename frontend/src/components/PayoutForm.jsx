@@ -52,12 +52,12 @@ export default function PayoutForm({ merchant, bankAccounts, availablePaise, onS
         padding: '1.5rem'
       }}
     >
-      <div style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em', marginBottom: '1.25rem' }}>
-        REQUEST PAYOUT
+      <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.12em', marginBottom: '1.25rem' }}>
+        Request payout
       </div>
 
       <div style={{ marginBottom: '1rem' }}>
-        <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>AMOUNT (₹)</label>
+        <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>Amount (₹)</label>
         <input
           type="number"
           value={amount}
@@ -99,7 +99,7 @@ export default function PayoutForm({ merchant, bankAccounts, availablePaise, onS
       </div>
 
       <div style={{ marginBottom: '1.25rem' }}>
-        <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>BANK ACCOUNT</label>
+        <label style={{ fontSize: '11px', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>Bank account</label>
         <select
           value={bankId}
           onChange={e => setBankId(e.target.value)}
@@ -149,20 +149,20 @@ export default function PayoutForm({ merchant, bankAccounts, availablePaise, onS
         style={{
           width: '100%',
           padding: '12px',
-          background: loading ? 'var(--bg-elevated)' : 'linear-gradient(135deg, var(--cyan-dim), #001a2e)',
+          background: loading ? 'var(--bg-elevated)' : 'var(--cyan-dim)',
           border: `1px solid ${loading ? 'var(--border)' : 'var(--cyan)'}`,
           borderRadius: '8px',
           color: loading ? 'var(--text-muted)' : 'var(--cyan)',
           fontFamily: "'Syne', sans-serif",
-          fontWeight: '700',
+          fontWeight: '600',
           fontSize: '13px',
-          letterSpacing: '0.1em',
+          letterSpacing: '0.06em',
           cursor: loading ? 'not-allowed' : 'pointer',
           transition: 'all 0.15s ease',
-          textTransform: 'uppercase'
+          textTransform: 'none'
         }}
       >
-        {loading ? 'PROCESSING...' : 'INITIATE PAYOUT →'}
+        {loading ? 'Processing...' : 'Initiate payout →'}
       </button>
     </div>
   )

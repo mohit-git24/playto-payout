@@ -19,8 +19,8 @@ export default function PayoutTable({ payouts }) {
           justifyContent: 'space-between'
         }}
       >
-        <span style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em' }}>PAYOUT HISTORY</span>
-        <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono'" }}>{payouts.length} RECORDS</span>
+        <span style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.08em' }}>Payout history</span>
+        <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono'" }}>{payouts.length} records</span>
       </div>
 
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -34,12 +34,12 @@ export default function PayoutTable({ payouts }) {
                   textAlign: 'left',
                   fontSize: '9px',
                   color: 'var(--text-muted)',
-                  letterSpacing: '0.15em',
+                  letterSpacing: '0.06em',
                   fontFamily: "'Syne'",
-                  fontWeight: '600'
+                  fontWeight: '500'
                 }}
               >
-                {h}
+                {h === 'TX ID' ? 'Tx ID' : h === 'AMOUNT' ? 'Amount' : h === 'STATUS' ? 'Status' : h === 'ATTEMPTS' ? 'Attempts' : h === 'CREATED' ? 'Created' : 'Note'}
               </th>
             ))}
           </tr>
@@ -74,25 +74,25 @@ export default function PayoutTable({ payouts }) {
                       alignItems: 'center',
                       gap: '6px',
                       padding: '3px 10px',
-                      borderRadius: '20px',
+                      borderRadius: '18px',
                       background: cfg.bg,
                       border: `1px solid ${cfg.border}`,
                       color: cfg.color,
                       fontSize: '10px',
                       fontFamily: "'JetBrains Mono'",
-                      letterSpacing: '0.08em'
+                      letterSpacing: '0.04em'
                     }}
                   >
                     <span
                       style={{
-                        width: '5px',
-                        height: '5px',
+                        width: '4px',
+                        height: '4px',
                         borderRadius: '50%',
                         background: cfg.dot,
-                        boxShadow: p.status === 'processing' ? `0 0 6px ${cfg.dot}` : 'none'
+                        opacity: p.status === 'processing' ? 1 : 0.85
                       }}
                     />
-                    {p.status.toUpperCase()}
+                    {p.status}
                   </span>
                 </td>
                 <td style={{ padding: '12px 16px', fontFamily: "'JetBrains Mono'", fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>

@@ -34,13 +34,13 @@ export default function Dashboard({ merchantId }) {
   const fmt = p => `₹${(p / 100).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', animation: 'fadeInUp 0.3s ease' }}>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', animation: 'fadeInUp 0.25s ease' }}>
       {/* Merchant name */}
       <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'baseline', gap: '1rem' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+        <h1 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
           {merchant.name}
         </h1>
-        <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono'", letterSpacing: '0.05em' }}>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono'", letterSpacing: '0.02em' }}>
           {merchant.email}
         </span>
       </div>
@@ -64,14 +64,14 @@ export default function Dashboard({ merchantId }) {
               top: 0,
               left: 0,
               right: 0,
-              height: '2px',
-              background: 'linear-gradient(90deg, var(--gold), transparent)'
+              height: '1px',
+              background: 'linear-gradient(90deg, var(--gold-dim), transparent)'
             }}
           />
-          <div style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em', marginBottom: '0.75rem' }}>
+          <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
             TOTAL BALANCE
           </div>
-          <div style={{ fontSize: '28px', fontWeight: '700', fontFamily: "'JetBrains Mono'", color: 'var(--gold)' }}>
+          <div style={{ fontSize: '26px', fontWeight: '600', fontFamily: "'JetBrains Mono'", color: 'var(--gold)' }}>
             {fmt(balance.balance_paise)}
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Gross credited funds</div>
@@ -94,20 +94,20 @@ export default function Dashboard({ merchantId }) {
               top: 0,
               left: 0,
               right: 0,
-              height: '2px',
+              height: '1px',
               background:
                 balance.held_paise > 0
-                  ? 'linear-gradient(90deg, var(--amber), transparent)'
-                  : 'linear-gradient(90deg, var(--border), transparent)'
+                  ? 'linear-gradient(90deg, var(--amber-dim), transparent)'
+                  : 'linear-gradient(90deg, var(--border-bright), transparent)'
             }}
           />
-          <div style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em', marginBottom: '0.75rem' }}>
+          <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
             HELD · IN FLIGHT
           </div>
           <div
             style={{
-              fontSize: '28px',
-              fontWeight: '700',
+              fontSize: '26px',
+              fontWeight: '600',
               fontFamily: "'JetBrains Mono'",
               color: balance.held_paise > 0 ? 'var(--amber)' : 'var(--text-muted)'
             }}
@@ -134,14 +134,14 @@ export default function Dashboard({ merchantId }) {
               top: 0,
               left: 0,
               right: 0,
-              height: '2px',
-              background: 'linear-gradient(90deg, var(--green), transparent)'
+              height: '1px',
+              background: 'linear-gradient(90deg, var(--green-dim), transparent)'
             }}
           />
-          <div style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em', marginBottom: '0.75rem' }}>
+          <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
             AVAILABLE TO WITHDRAW
           </div>
-          <div style={{ fontSize: '28px', fontWeight: '700', fontFamily: "'JetBrains Mono'", color: 'var(--green)' }}>
+          <div style={{ fontSize: '26px', fontWeight: '600', fontFamily: "'JetBrains Mono'", color: 'var(--green)' }}>
             {fmt(balance.available_paise)}
           </div>
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Ready for payout</div>
@@ -166,7 +166,7 @@ export default function Dashboard({ merchantId }) {
             padding: '1.5rem'
           }}
         >
-          <div style={{ fontSize: '10px', color: 'var(--text-muted)', letterSpacing: '0.15em', marginBottom: '1rem' }}>
+          <div style={{ fontSize: '9px', color: 'var(--text-muted)', letterSpacing: '0.12em', marginBottom: '1rem' }}>
             RECENT CREDITS
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

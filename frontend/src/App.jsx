@@ -35,7 +35,7 @@ export default function App() {
           position: 'sticky',
           top: 0,
           zIndex: 100,
-          backdropFilter: 'blur(12px)'
+          backdropFilter: 'blur(6px)'
         }}
       >
         {/* Logo */}
@@ -44,7 +44,7 @@ export default function App() {
             style={{
               width: '28px',
               height: '28px',
-              background: 'linear-gradient(135deg, var(--gold), var(--amber))',
+              background: 'var(--gold)',
               borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
@@ -55,10 +55,10 @@ export default function App() {
           >
             ₹
           </div>
-          <span style={{ fontWeight: '800', fontSize: '15px', letterSpacing: '0.05em', color: 'var(--text-primary)' }}>
+          <span style={{ fontWeight: '700', fontSize: '15px', letterSpacing: '0.02em', color: 'var(--text-primary)' }}>
             PLAYTO
           </span>
-          <span style={{ fontWeight: '400', fontSize: '13px', color: 'var(--text-muted)', letterSpacing: '0.1em' }}>
+          <span style={{ fontWeight: '500', fontSize: '13px', color: 'var(--text-muted)', letterSpacing: '0.02em' }}>
             PAY
           </span>
         </div>
@@ -71,11 +71,10 @@ export default function App() {
               height: '6px',
               borderRadius: '50%',
               background: 'var(--green)',
-              boxShadow: '0 0 8px var(--green)',
-              animation: 'pulse 2s infinite'
+              opacity: 0.9
             }}
           />
-          <span style={{ fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.08em' }}>LIVE</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)', letterSpacing: '0.04em', fontWeight: 600 }}>LIVE</span>
         </div>
 
         {/* Merchant Tabs */}
@@ -94,8 +93,8 @@ export default function App() {
                 fontFamily: "'Syne', sans-serif",
                 fontWeight: selectedId === m.id ? '600' : '400',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                letterSpacing: '0.03em'
+                transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
+                letterSpacing: '0.01em'
               }}
             >
               {m.name}
@@ -107,12 +106,8 @@ export default function App() {
       {selectedId && <Dashboard merchantId={selectedId} />}
 
       <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
-        }
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(12px); }
+          from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
